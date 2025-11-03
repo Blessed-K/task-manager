@@ -1,38 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Task Manager</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-2xl mx-auto bg-white p-4 rounded-xl shadow">
-        <h1 class="text-2xl font-bold mb-4">My Tasks</h1>
+@extends('layouts.app')
 
-        <a href="{{ route('tasks.create') }}" class="bg-blue-500 text-white px-3 py-2 rounded">+ Add Task</a>
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-semibold">My Tasks</h2>
+    <a href="{{ route('tasks.create') }}" class="btn btn-primary">+ New Task</a>
+</div>
 
-        @if (session('success'))
-            <div class="bg-green-100 text-green-700 p-2 mt-2 rounded">{{ session('success') }}</div>
-        @endif
+@if ($message = Session::get('success'))
+    <div class="alert alert-success">{{ $message }}</div>
+@endif
 
-        <ul class="mt-4 space-y-2">
+<div class="card p-3">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th width="180">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
             @forelse ($tasks as $task)
-                <li class="flex justify-between items-center bg-gray-50 p-3 rounded">
-                    <div>
-                        <strong>{{ $task->title }}</strong>
-                        <p class="text-sm text-gray-600">{{ $task->description }}</p>
-                    </div>
-                    <div>
-                        <a href="{{ route('tasks.edit', $task) }}" class="text-blue-500 mr-2">Edit</a>
-                        <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
-                            @csrf @method('DELETE')
-                            <button class="text-red-500">Delete</button>
-                        </form>
-                    </div>
-                </li>
+            <tr>
+                <td>{{ $loop->iteration }}</td>
+                <td class="fw-semibold">{{ $task->title }}</td>
+                <td>{{ $task->description }}</td>
+                <td>
+                    <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display:inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete this task?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
             @empty
-                <li class="text-gray-500">No tasks yet.</li>
+            <tr>
+                <td colspan="4" class="text-center text-muted py-4">No tasks yet. Create one above.</td>
+            </tr>
             @endforelse
-        </ul>
-    </div>
-</body>
-</html>
+        </tbody>
+    </table>
+</div>
+@endsection
